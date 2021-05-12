@@ -18,3 +18,8 @@
    - Analyzing call hierarchy during compile time to automatically decide whether caching is mandatory for reactive guarantees
    - state also represented by global key-value map - should be done automatically
    - state allows automatic UI updates by recording changes
+
+* Links
+  - https://raphlinus.github.io/ui/druid/2019/11/22/reactive-ui.html
+  - moxie.rs
+  - https://github.com/seed-rs/seed
