@@ -1,0 +1,20 @@
+* Moxie and Topo
+  UI is usually a tree-like structure of widgets where each widget represents a node. Approaches like React.js arrange your application state in a hierarchy that corresponds to your widget tree. New events trigger updates to the state which is compared to the previous state and results in updates to the widget tree.
+
+  Moxie and its underlying low-level crate topo resemble this tree hierarchy by using stack frames. Essentially, each function corresponds to a node that contains its own state. Each loop iteration (new UI event -> update -> redraw) the function hierarchy is revisited. However, usually not all values change each iteration, resulting in unnecessary recomputations.
+
+  Topo stores inidividual consistent identifiers for each function. Each call hierarchy evaluation a new transaction is used. This way, when accessing cached values, only the correct cache value is returned if multiple transactions happen at the same time.
+
+** Relation to Reactive Programming
+   The idea of Topo is to evaluate the same call hierarchy each frame update. This is similar to a transaction in a reactive program. Also, each function with Topo can have local state, which is potentially mutated on evaluation. Similarly, reactive programs have reactives as primitives, the nodes of a dataflow graph. Reactives can also have local state that is mutated in a transaction. However, reactives are only evaluated once in a transaction if they mutate their state. After the first time, always the same value is returned in the same transaction. With Topo, no such guarantee is made. However, it is possible to only recomputate functions if their arguments change by wrapping them in a "cache" call.
+
+   Because Topo does not have high-level hierarchy information, all state mutating functions would have to be cached in order to guarantee a reactive like execution. The idea to build a dataflow from a function hierarchy seems interesting because it requires less code generation and integrates better with existing Rust code.
+
+   Improvements/Ideas:
+   - Currently caching is done by wrapping a function call. It should be better to do this at the function declaration level because it involves deciding wheter the computation benefits from caching or whether it is required because of state modifications.
+   - Functions must only access/change local state, is that guaranteed?
+   - Unused chaches are garbage collected at the end of an evaluation, performance?
+   - Cloning vs references?
+   - Analyzing call hierarchy during compile time to automatically decide whether caching is mandatory for reactive guarantees
+   - state also represented by global key-value map - should be done automatically
+   - state allows automatic UI updates by recording changes
